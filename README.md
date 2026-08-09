@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Transform Frontend
 
-## Getting Started
+A personal portfolio site for a software engineer — hero intro, an experience
+timeline, account/login views, and a floating AI-assistant chat widget with
+light/dark theming.
 
-First, run the development server:
+The design was created in **Claude Design** (Nocturne design system) and the
+Next.js implementation was generated with **Claude Code**, translating the
+design's template bindings and view logic into idiomatic React.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+- **[Next.js](https://nextjs.org)** 16 (App Router) — React framework and dev/build tooling
+- **[React](https://react.dev)** 19
+- **TypeScript**
+- Plain CSS with a token-based design system (custom properties for color,
+  spacing, radius, and elevation), no CSS framework
+- **[Phosphor Icons](https://phosphoricons.com)** (web font, via CDN) and
+  **Inter** (Google Fonts) for iconography and typography
+- **ESLint** (`eslint-config-next`) for linting
+
+## Project structure
+
+```
+app/
+  layout.tsx      # root layout — fonts, icon stylesheet, page metadata
+  page.tsx         # the portfolio page (client component): theme/view state,
+                    # hero + experience timeline, login, profile, chat widget
+  globals.css      # design tokens and component classes (buttons, cards,
+                    # tags, forms, nav, dialog, etc.) plus light-theme overrides
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The page is a single client-rendered component that switches between three
+views (`home`, `login`, `profile`) and a chat panel via local React state —
+no routing or backend involved.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Getting started
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) to view it.
 
-To learn more about Next.js, take a look at the following resources:
+## Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```
