@@ -7,8 +7,6 @@ services:
     container_name: transform-frontend
     restart: unless-stopped
     ports:
-      # HOST_PORT:CONTAINER_PORT — change 3000 on the left to expose on a
-      # different host port, e.g. "8080:3000". Override via HOST_PORT env var.
-      - "${HOST_PORT:-3000}:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - NODE_ENV=production
