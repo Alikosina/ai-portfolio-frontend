@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 
-// Proxied through app/api/chat/route.ts so the browser never calls the
-// upstream LLM API directly (avoids CORS and keeps the upstream URL server-side).
-const CHAT_API_URL = "/api/chat";
+// Proxied through app/chat/route.ts so the browser never calls the upstream
+// LLM API directly (avoids CORS and keeps the upstream URL server-side).
+// Deliberately NOT under /api — that path is already routed by Nginx to a
+// separate backend service on the same domain.
+const CHAT_API_URL = "/chat";
 
 type ChatMessage = {
   role: "user" | "assistant";
