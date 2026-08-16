@@ -49,3 +49,27 @@ Open [http://localhost:3000](http://localhost:3000) to view it.
 npm run build
 npm run start
 ```
+
+## Docker
+
+The app builds into a minimal, self-contained image using Next.js'
+[`standalone`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
+output (enabled in `next.config.ts`). The server listens on port `3000`
+inside the container.
+
+Build and run directly:
+
+```bash
+docker build -t transform-frontend .
+docker run -d --name transform-frontend -p 3000:3000 transform-frontend
+```
+
+Or with Docker Compose (also picks up an optional `HOST_PORT` env var if you
+want to expose it on a different host port, e.g. `HOST_PORT=8080`):
+
+```bash
+docker compose up -d --build
+```
+
+Then open [http://localhost:3000](http://localhost:3000) (or your chosen
+`HOST_PORT`).
