@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
 import ChatWidget from "./components/ChatWidget";
+import { APP_VERSION } from "./version";
 
 type Job = {
   dates: string;
@@ -57,6 +58,10 @@ export default function Portfolio() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [view, setView] = useState<View>("home");
   const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    console.log(`v-${APP_VERSION}`);
+  }, []);
 
   const themeIcon = theme === "dark" ? "ph ph-moon" : "ph ph-sun";
   const isHome = view === "home";
