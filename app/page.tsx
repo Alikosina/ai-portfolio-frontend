@@ -96,7 +96,7 @@ export default function Portfolio() {
             width: "100%",
           }}
         >
-          <div className="nav-brand">Alex Rivera</div>
+          <div className="nav-brand">Алик Слоян</div>
           <div style={{ display: "flex", gap: "var(--space-6)", marginRight: "auto" }}>
             <a
               href="#"
