@@ -1,0 +1,14 @@
+{
+  "header": {
+    "brand": "Алик Слоян",
+    "nav": {
+      "home": "Главная",
+      "experience": "Опыт",
+      "projects": "Проекты"
+    },
+    "toggleTheme": "Сменить тему",
+    "switchLanguage": "Сменить язык",
+    "login": "Войти",
+    "account": "Аккаунт"
+  }
+}

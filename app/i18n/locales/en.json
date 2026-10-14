@@ -1,0 +1,14 @@
+{
+  "header": {
+    "brand": "Alik Sloyan",
+    "nav": {
+      "home": "Home",
+      "experience": "Experience",
+      "projects": "Projects"
+    },
+    "toggleTheme": "Toggle theme",
+    "switchLanguage": "Switch language",
+    "login": "Log in",
+    "account": "Account"
+  }
+}
