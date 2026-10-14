@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 import ChatWidget from "./components/ChatWidget";
+import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, isLanguage, type Language } from "./i18n";
 import { APP_VERSION } from "./version";
 
 type Job = {
@@ -58,10 +60,22 @@ export default function Portfolio() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [view, setView] = useState<View>("home");
   const [chatOpen, setChatOpen] = useState(false);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     console.log(`v-${APP_VERSION}`);
   }, []);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (isLanguage(saved) && saved !== i18n.language) i18n.changeLanguage(saved);
+    } catch {}
+  }, [i18n]);
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   const themeIcon = theme === "dark" ? "ph ph-moon" : "ph ph-sun";
   const isHome = view === "home";
@@ -69,7 +83,16 @@ export default function Portfolio() {
   const isProfile = view === "profile";
   const isLoggedOut = view !== "profile";
 
+  const language: Language = isLanguage(i18n.language) ? i18n.language : DEFAULT_LANGUAGE;
+
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleLanguage = () => {
+    const next: Language = language === "en" ? "ru" : "en";
+    i18n.changeLanguage(next);
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    } catch {}
+  };
   const goHome = () => setView("home");
   const goLogin = () => setView("login");
   const goProfile = () => setView("profile");
@@ -101,7 +124,7 @@ export default function Portfolio() {
             width: "100%",
           }}
         >
-          <div className="nav-brand">Алик Слоян</div>
+          <div className="nav-brand">{t("header.brand")}</div>
           <div style={{ display: "flex", gap: "var(--space-6)", marginRight: "auto" }}>
             <a
               href="#"
@@ -110,21 +133,24 @@ export default function Portfolio() {
                 goHome();
               }}
             >
-              Home
+              {t("header.nav.home")}
             </a>
             <a href="#" onClick={stop}>
-              Experience
+              {t("header.nav.experience")}
             </a>
             <a href="#" onClick={stop}>
-              Projects
+              {t("header.nav.projects")}
             </a>
           </div>
-          <button className="btn btn-icon btn-ghost" onClick={toggleTheme} title="Toggle theme">
+          <button className="btn btn-ghost" onClick={toggleLanguage} title={t("header.switchLanguage")}>
+            <i className="ph ph-translate"></i> {language === "en" ? "RU" : "EN"}
+          </button>
+          <button className="btn btn-icon btn-ghost" onClick={toggleTheme} title={t("header.toggleTheme")}>
             <i className={themeIcon}></i>
           </button>
           {isLoggedOut && (
             <button className="btn btn-secondary" onClick={goLogin}>
-              Log in
+              {t("header.login")}
             </button>
           )}
           <a
@@ -133,7 +159,7 @@ export default function Portfolio() {
               stop(e);
               goProfile();
             }}
-            title="Account"
+            title={t("header.account")}
             style={{
               width: 34,
               height: 34,
