@@ -293,3 +293,22 @@ textarea.input { min-height: 90px; resize: vertical; }
 }
 .dialog-body { font-size: 14px; opacity: 0.85; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+/* — overlay scrollbar — */
+/* Native bar is hidden so it never takes width from the content; the thumb
+   is drawn on top of the scroll area by the component that owns it. */
+.scroll-area { position: relative; }
+.scroll-area-viewport { scrollbar-width: none; }
+.scroll-area-viewport::-webkit-scrollbar { display: none; }
+.scroll-area-thumb {
+  position: absolute; right: 3px; width: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 28%, transparent);
+  opacity: 0; transition: opacity 0.2s, width 0.15s, background 0.15s;
+  cursor: grab; touch-action: none;
+}
+.scroll-area:hover .scroll-area-thumb, .scroll-area-thumb.is-active { opacity: 1; }
+.scroll-area-thumb:hover, .scroll-area-thumb.is-dragging {
+  width: 8px; background: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+.scroll-area-thumb.is-dragging { cursor: grabbing; }
