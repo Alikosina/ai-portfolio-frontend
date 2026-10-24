@@ -470,7 +470,7 @@ export default function Portfolio() {
             fontSize: 13,
           }}
         >
-          <span>© 2026 Alex Rivera</span>
+          <span>© 2026 Alik Sloyan</span>
           <div style={{ display: "flex", gap: "var(--space-4)" }}>
             <a href="#" onClick={stop}>
               <i className="ph ph-github-logo"></i>
