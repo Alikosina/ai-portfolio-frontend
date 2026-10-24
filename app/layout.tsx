@@ -3,7 +3,7 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Alex Rivera — Software Engineer",
+  title: "Alik Sloyan personal portal",
   description:
     "Backend-leaning full-stack engineer specializing in distributed systems, developer tooling, and pragmatic React front ends.",
 };
