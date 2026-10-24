@@ -16,6 +16,9 @@ import {
 // separate backend service on the same domain.
 const CHAT_API_URL = "/chat";
 
+// 2 previous exchanges (user message + assistant reply) == 4 messages.
+const HISTORY_MESSAGES_TO_SEND = 4;
+
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
@@ -131,6 +134,9 @@ export default function ChatWidget({ open, onOpen, onClose }: ChatWidgetProps) {
     const text = input.trim();
     if (!text || loading) return;
 
+    // Last 2 exchanges (user + assistant pairs) sent as context for the next turn.
+    const history = messages.slice(-HISTORY_MESSAGES_TO_SEND);
+
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
     setLoading(true);
@@ -140,7 +146,7 @@ export default function ChatWidget({ open, onOpen, onClose }: ChatWidgetProps) {
       const res = await fetch(CHAT_API_URL, {
         method: "POST",
         headers: { accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, history }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: { response?: string } = await res.json();
