@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-
-const BASE_URL = (process.env.CHAT_API_URL || "http://localhost:3001/llm/generate").replace(/\/llm\/generate$/, "");
+import { BACKEND_BASE_URL, getAccessToken } from "@/app/auth/session";
 
 export async function POST(request: Request) {
+  const token = await getAccessToken();
+  if (!token) {
+    return NextResponse.json({ detail: "Войдите, чтобы подтвердить отправку" }, { status: 401 });
+  }
+
   let draftId: unknown;
   try {
     ({ draft_id: draftId } = await request.json());
@@ -13,9 +17,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "`draft_id` is required" }, { status: 400 });
   }
   try {
-    const upstream = await fetch(`${BASE_URL}/llm/email/confirm`, {
+    const upstream = await fetch(`${BACKEND_BASE_URL}/llm/email/confirm`, {
       method: "POST",
-      headers: { accept: "application/json", "Content-Type": "application/json" },
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ draft_id: draftId }),
     });
     const data = await upstream.json();
