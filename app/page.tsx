@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
-import { useTranslation } from "react-i18next";
-import ChatWidget from "./components/ChatWidget";
-import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, isLanguage, type Language } from "./i18n";
+import { useEffect, type CSSProperties } from "react";
+import PageShell from "./components/PageShell";
 import { APP_VERSION } from "./version";
+import { useChatControls } from "./components/ChatContext";
 
-type Job = {
+export type Job = {
   dates: string;
   role: string;
   org: string;
@@ -49,443 +48,113 @@ const JOBS: Job[] = [
   },
 ];
 
-type View = "home" | "login" | "profile";
-type Theme = "dark" | "light";
 
-function stop(e: MouseEvent) {
-  e.preventDefault();
-}
+const headingWeight = "var(--font-heading-weight)" as CSSProperties["fontWeight"];
 
-export default function Portfolio() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [view, setView] = useState<View>("home");
-  const [chatOpen, setChatOpen] = useState(false);
-  const { t, i18n } = useTranslation();
 
+export default function Home() {
+  const { openChat } = useChatControls();
   useEffect(() => {
     console.log(`v-${APP_VERSION}`);
   }, []);
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (isLanguage(saved) && saved !== i18n.language) i18n.changeLanguage(saved);
-    } catch {}
-  }, [i18n]);
-
-  useEffect(() => {
-    document.documentElement.lang = i18n.language;
-  }, [i18n.language]);
-
-  const themeIcon = theme === "dark" ? "ph ph-moon" : "ph ph-sun";
-  const isHome = view === "home";
-  const isLogin = view === "login";
-  const isProfile = view === "profile";
-  const isLoggedOut = view !== "profile";
-
-  const language: Language = isLanguage(i18n.language) ? i18n.language : DEFAULT_LANGUAGE;
-
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
-  const toggleLanguage = () => {
-    const next: Language = language === "en" ? "ru" : "en";
-    i18n.changeLanguage(next);
-    try {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
-    } catch {}
-  };
-  const goHome = () => setView("home");
-  const goLogin = () => setView("login");
-  const goProfile = () => setView("profile");
-  const openChat = () => setChatOpen(true);
-  const closeChat = () => setChatOpen(false);
-
-  const headingWeight = "var(--font-heading-weight)" as CSSProperties["fontWeight"];
-
   return (
-    <div
-      data-theme={theme}
-      style={{
-        background: "var(--color-bg)",
-        color: "var(--color-text)",
-        fontFamily: "var(--font-body)",
-        minHeight: "100vh",
-        position: "relative",
-      }}
-    >
-      <nav className="nav" style={{ justifyContent: "flex-start", borderBottom: "1px solid var(--color-divider)" }}>
-        <div
-          style={{
-            maxWidth: 1160,
-            margin: "0 auto",
-            padding: "0 var(--space-8)",
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-8)",
-            width: "100%",
-          }}
-        >
-          <div className="nav-brand">{t("header.brand")}</div>
-          <div style={{ display: "flex", gap: "var(--space-6)", marginRight: "auto" }}>
-            <a
-              href="#"
-              onClick={(e) => {
-                stop(e);
-                goHome();
-              }}
-            >
-              {t("header.nav.home")}
-            </a>
-            <a href="#" onClick={stop}>
-              {t("header.nav.experience")}
-            </a>
-            <a href="#" onClick={stop}>
-              {t("header.nav.projects")}
-            </a>
-          </div>
-          <button className="btn btn-ghost" onClick={toggleLanguage} title={t("header.switchLanguage")}>
-            <i className="ph ph-translate"></i> {language === "en" ? "RU" : "EN"}
-          </button>
-          <button className="btn btn-icon btn-ghost" onClick={toggleTheme} title={t("header.toggleTheme")}>
-            <i className={themeIcon}></i>
-          </button>
-          {isLoggedOut && (
-            <button className="btn btn-secondary" onClick={goLogin}>
-              {t("header.login")}
-            </button>
-          )}
-          <a
-            href="#"
-            onClick={(e) => {
-              stop(e);
-              goProfile();
-            }}
-            title={t("header.account")}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              background: "var(--color-accent-800)",
-              color: "var(--color-accent-100)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 13,
-              fontWeight: 500,
-              border: "1px solid var(--color-accent-600)",
-            }}
-          >
-            JD
-          </a>
-        </div>
-      </nav>
-
-      {isHome && (
-        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 var(--space-8)" }}>
-          <section style={{ padding: "88px 0 64px" }}>
-            <p
-              className="kicker"
-              style={{ fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 var(--space-4)" }}
-            >
-              Software Engineer
-            </p>
-            <h1
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: headingWeight,
-                fontSize: 52,
-                lineHeight: 1.08,
-                letterSpacing: "-0.01em",
-                margin: "0 0 var(--space-6)",
-                maxWidth: 780,
-              }}
-            >
-              I build fast, reliable products — and ship them with care.
-            </h1>
-            <p className="lede" style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 560, margin: "0 0 var(--space-8)" }}>
-              Backend-leaning full-stack engineer specializing in distributed systems, developer tooling, and
-              pragmatic React front ends. Currently open to senior roles.
-            </p>
-            <div style={{ display: "flex", gap: "var(--space-4)" }}>
-              <button className="btn btn-primary">View experience</button>
-              <button className="btn btn-ghost" onClick={openChat}>
-                <i className="ph ph-chat-circle-text"></i> Ask the AI assistant
-              </button>
-            </div>
-          </section>
-
-          <div style={{ padding: "0 0 96px" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: headingWeight,
-                fontSize: 13,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--color-neutral-400)",
-                margin: "0 0 var(--space-6)",
-              }}
-            >
-              Experience
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", maxWidth: 760 }}>
-              {JOBS.map((job, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "140px 1fr",
-                    gap: "var(--space-6)",
-                    padding: "var(--space-6) 0",
-                    borderTop: "1px solid var(--color-divider)",
-                  }}
-                >
-                  <div className="tl-dates" style={{ color: "var(--color-neutral-500)", fontSize: 13, paddingTop: 3 }}>
-                    {job.dates}
-                  </div>
-                  <div>
-                    <h3
-                      style={{
-                        fontFamily: "var(--font-heading)",
-                        fontWeight: headingWeight,
-                        fontSize: 18,
-                        margin: "0 0 4px",
-                      }}
-                    >
-                      {job.role}
-                    </h3>
-                    <p className="tl-org" style={{ color: "var(--color-accent-300)", fontSize: 14, margin: "0 0 var(--space-3)" }}>
-                      {job.org}
-                    </p>
-                    <p
-                      className="tl-desc"
-                      style={{ color: "var(--color-neutral-300)", fontSize: 14, lineHeight: 1.6, margin: "0 0 var(--space-3)" }}
-                    >
-                      {job.desc}
-                    </p>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {job.tags.map((tag, ti) => (
-                        <span key={ti} className="tag" style={{ background: tag.bg, color: tag.fg }}>
-                          {tag.label}
-                        </span>
-                      ))}
+    <PageShell>
+          <div style={{ maxWidth: 1160, margin: "0 auto", padding: "0 var(--space-8)" }}>
+            <section style={{ padding: "88px 0 64px" }}>
+              <p
+                className="kicker"
+                style={{ fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 var(--space-4)" }}
+              >
+                Software Engineer
+              </p>
+              <h1
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  fontWeight: headingWeight,
+                  fontSize: 52,
+                  lineHeight: 1.08,
+                  letterSpacing: "-0.01em",
+                  margin: "0 0 var(--space-6)",
+                  maxWidth: 780,
+                }}
+              >
+                I build fast, reliable products — and ship them with care.
+              </h1>
+              <p className="lede" style={{ fontSize: 18, lineHeight: 1.6, maxWidth: 560, margin: "0 0 var(--space-8)" }}>
+                Backend-leaning full-stack engineer specializing in distributed systems, developer tooling, and
+                pragmatic React front ends. Currently open to senior roles.
+              </p>
+              <div style={{ display: "flex", gap: "var(--space-4)" }}>
+                <button className="btn btn-primary">View experience</button>
+                <button className="btn btn-ghost" onClick={openChat}>
+                  <i className="ph ph-chat-circle-text"></i> Ask the AI assistant
+                </button>
+              </div>
+            </section>
+  
+            <div style={{ padding: "0 0 96px" }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  fontWeight: headingWeight,
+                  fontSize: 13,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--color-neutral-400)",
+                  margin: "0 0 var(--space-6)",
+                }}
+              >
+                Experience
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", maxWidth: 760 }}>
+                {JOBS.map((job, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "140px 1fr",
+                      gap: "var(--space-6)",
+                      padding: "var(--space-6) 0",
+                      borderTop: "1px solid var(--color-divider)",
+                    }}
+                  >
+                    <div className="tl-dates" style={{ color: "var(--color-neutral-500)", fontSize: 13, paddingTop: 3 }}>
+                      {job.dates}
+                    </div>
+                    <div>
+                      <h3
+                        style={{
+                          fontFamily: "var(--font-heading)",
+                          fontWeight: headingWeight,
+                          fontSize: 18,
+                          margin: "0 0 4px",
+                        }}
+                      >
+                        {job.role}
+                      </h3>
+                      <p className="tl-org" style={{ color: "var(--color-accent-300)", fontSize: 14, margin: "0 0 var(--space-3)" }}>
+                        {job.org}
+                      </p>
+                      <p
+                        className="tl-desc"
+                        style={{ color: "var(--color-neutral-300)", fontSize: 14, lineHeight: 1.6, margin: "0 0 var(--space-3)" }}
+                      >
+                        {job.desc}
+                      </p>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {job.tags.map((tag, ti) => (
+                          <span key={ti} className="tag" style={{ background: tag.bg, color: tag.fg }}>
+                            {tag.label}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isLogin && (
-        <div style={{ maxWidth: 420, margin: "0 auto", padding: "96px var(--space-8) 120px" }}>
-          <p
-            className="kicker"
-            style={{
-              fontSize: 13,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              margin: "0 0 var(--space-4)",
-              color: "var(--color-accent-300)",
-            }}
-          >
-            Welcome back
-          </p>
-          <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: headingWeight, fontSize: 32, margin: "0 0 var(--space-6)" }}>
-            Log in to your account
-          </h1>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-            <div className="field">
-              <label>Email</label>
-              <input className="input" type="email" placeholder="you@example.com" />
-            </div>
-            <div className="field">
-              <label>Password</label>
-              <input className="input" type="password" placeholder="••••••••" />
-            </div>
-            <button className="btn btn-primary btn-block" onClick={goHome}>
-              Log in
-            </button>
-            <p style={{ fontSize: 13, color: "var(--color-neutral-500)", textAlign: "center", margin: 0 }}>
-              No account?{" "}
-              <a href="#" onClick={stop} style={{ color: "var(--color-accent-300)" }}>
-                Sign up
-              </a>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {isProfile && (
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px var(--space-8) 120px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-5)", marginBottom: "var(--space-8)" }}>
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: "50%",
-                background: "var(--color-accent-800)",
-                color: "var(--color-accent-100)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 22,
-                fontWeight: 500,
-                border: "1px solid var(--color-accent-600)",
-              }}
-            >
-              JD
-            </div>
-            <div>
-              <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: headingWeight, fontSize: 26, margin: "0 0 4px" }}>
-                Account settings
-              </h1>
-              <p style={{ color: "var(--color-neutral-400)", fontSize: 14, margin: 0 }}>
-                Manage your sign-in and account details
-              </p>
-            </div>
-          </div>
-
-          <div
-            style={{
-              background: "var(--color-surface)",
-              borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-sm)",
-              padding: "var(--space-6)",
-              marginBottom: "var(--space-6)",
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: headingWeight,
-                fontSize: 13,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--color-neutral-400)",
-                margin: "0 0 var(--space-5)",
-              }}
-            >
-              Profile
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)", marginBottom: "var(--space-5)" }}>
-              <div className="field">
-                <label>Display name</label>
-                <input className="input" type="text" defaultValue="Jordan Diaz" />
-              </div>
-              <div className="field">
-                <label>Username</label>
-                <input className="input" type="text" defaultValue="jordandiaz" />
+                ))}
               </div>
             </div>
-            <div className="field" style={{ marginBottom: "var(--space-5)" }}>
-              <label>Email address</label>
-              <input className="input" type="email" defaultValue="jordan.diaz@gmail.com" />
-            </div>
-            <button className="btn btn-primary">Save changes</button>
           </div>
-
-          <div
-            style={{
-              background: "var(--color-surface)",
-              borderRadius: "var(--radius-lg)",
-              boxShadow: "var(--shadow-sm)",
-              padding: "var(--space-6)",
-              marginBottom: "var(--space-6)",
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: headingWeight,
-                fontSize: 13,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--color-neutral-400)",
-                margin: "0 0 var(--space-5)",
-              }}
-            >
-              Password
-            </h2>
-            <div className="field" style={{ marginBottom: "var(--space-5)" }}>
-              <label>Current password</label>
-              <input className="input" type="password" placeholder="••••••••" />
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)", marginBottom: "var(--space-5)" }}>
-              <div className="field">
-                <label>New password</label>
-                <input className="input" type="password" placeholder="••••••••" />
-              </div>
-              <div className="field">
-                <label>Confirm new password</label>
-                <input className="input" type="password" placeholder="••••••••" />
-              </div>
-            </div>
-            <button className="btn btn-primary">Update password</button>
-            <p style={{ fontSize: 13, color: "var(--color-neutral-500)", margin: "var(--space-4) 0 0" }}>
-              Forgot your current password?{" "}
-              <a href="#" onClick={stop} style={{ color: "var(--color-accent-300)" }}>
-                Send a reset link
-              </a>{" "}
-              instead.
-            </p>
-          </div>
-
-          <div style={{ background: "var(--color-surface)", borderRadius: "var(--radius-lg)", boxShadow: "var(--shadow-sm)", padding: "var(--space-6)" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-heading)",
-                fontWeight: headingWeight,
-                fontSize: 13,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "var(--color-neutral-400)",
-                margin: "0 0 var(--space-5)",
-              }}
-            >
-              Danger zone
-            </h2>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 14, color: "var(--color-neutral-300)", margin: 0, maxWidth: "60ch" }}>
-                Sign out of your account on this device.
-              </p>
-              <button className="btn btn-secondary" onClick={goHome}>
-                Log out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <footer style={{ borderTop: "1px solid var(--color-divider)", padding: "var(--space-8) 0" }}>
-        <div
-          style={{
-            maxWidth: 1160,
-            margin: "0 auto",
-            padding: "0 var(--space-8)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            color: "var(--color-neutral-500)",
-            fontSize: 13,
-          }}
-        >
-          <span>© 2026 Alik Sloyan</span>
-          <div style={{ display: "flex", gap: "var(--space-4)" }}>
-            <a href="#" onClick={stop}>
-              <i className="ph ph-github-logo"></i>
-            </a>
-            <a href="#" onClick={stop}>
-              <i className="ph ph-linkedin-logo"></i>
-            </a>
-            <a href="#" onClick={stop}>
-              <i className="ph ph-envelope-simple"></i>
-            </a>
-          </div>
-        </div>
-      </footer>
-
-      <ChatWidget open={chatOpen} onOpen={openChat} onClose={closeChat} />
-    </div>
+    </PageShell>
   );
 }
