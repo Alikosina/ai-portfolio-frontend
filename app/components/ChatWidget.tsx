@@ -24,6 +24,13 @@ type ChatMessage = {
   content: string;
 };
 
+type EmailDraft = {
+  draft_id: string;
+  to: string;
+  subject: string;
+  body: string;
+};
+
 type ChatWidgetProps = {
   open: boolean;
   onOpen: () => void;
@@ -64,6 +71,8 @@ export default function ChatWidget({ open, onOpen, onClose }: ChatWidgetProps) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<EmailDraft | null>(null);
+  const [draftStatus, setDraftStatus] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const [thumb, setThumb] = useState<Thumb>(null);
   const [scrolling, setScrolling] = useState(false);
@@ -149,13 +158,45 @@ export default function ChatWidget({ open, onOpen, onClose }: ChatWidgetProps) {
         body: JSON.stringify({ text, history }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data: { response?: string } = await res.json();
+      const data: { response?: string; draft?: EmailDraft | null } = await res.json();
       const reply = data.response ?? "Sorry, I didn't get a response.";
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      if (data.draft) {
+        setDraft(data.draft);
+        setDraftStatus(null);
+      }
     } catch {
       setError("Couldn't reach the assistant. Please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function resolveDraft(action: "confirm" | "cancel") {
+    if (!draft) return;
+    setDraftStatus(action === "confirm" ? "sending" : "cancelling");
+    try {
+      const res = await fetch(`/chat/email/${action}`, {
+        method: "POST",
+        headers: { accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ draft_id: draft.draft_id }),
+      });
+      const data: { detail?: string } = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setDraftStatus(data.detail ?? `Ошибка ${res.status}`);
+        return;
+      }
+      setDraft(null);
+      setDraftStatus(null);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: action === "confirm" ? `Письмо отправлено на ${draft.to}.` : "Отправка письма отменена.",
+        },
+      ]);
+    } catch {
+      setDraftStatus("Не удалось связаться с сервером.");
     }
   }
 
@@ -250,6 +291,42 @@ export default function ChatWidget({ open, onOpen, onClose }: ChatWidgetProps) {
           {loading && (
             <div className="msg-ai" style={assistantBubble}>
               <i className="ph ph-circle-notch" style={{ display: "inline-block", animation: "spin 1s linear infinite" }}></i>
+            </div>
+          )}
+          {draft && (
+            <div
+              style={{
+                ...assistantBubble,
+                maxWidth: "100%",
+                border: "1px solid var(--color-divider)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-2)",
+              }}
+            >
+              <strong style={{ fontSize: 13 }}>Черновик письма</strong>
+              <div style={{ fontSize: 12.5 }}>Кому: {draft.to}</div>
+              <div style={{ fontSize: 12.5 }}>Тема: {draft.subject}</div>
+              <div style={{ fontSize: 12.5, whiteSpace: "pre-wrap" }}>{draft.body}</div>
+              {draftStatus && !["sending", "cancelling"].includes(draftStatus) && (
+                <p style={{ fontSize: 12, color: "#e5484d", margin: 0 }}>{draftStatus}</p>
+              )}
+              <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" }}>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => resolveDraft("cancel")}
+                  disabled={draftStatus !== null}
+                >
+                  Отменить
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => resolveDraft("confirm")}
+                  disabled={draftStatus !== null}
+                >
+                  {draftStatus === "sending" ? "Отправка..." : "Отправить"}
+                </button>
+              </div>
             </div>
           )}
           {error && (
